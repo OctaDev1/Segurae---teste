@@ -12,11 +12,11 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 @Entity 
 @Table(name = "tb_apolice")
 public class Apolice {
-
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -29,15 +29,18 @@ public class Apolice {
 	private String bemSegurado;
 	
 	@NotNull(message = "O ano do modelo não pode ser nulo!")
-	@Column(name = "anoModelo")
+	@Size(min = 4, max = 4, message = "Insira um ano válido.")
+	@Column(name = "anoModelo", length = 4)
 	private Integer anoModelo; 
 	
 	@NotBlank(message = "A placa não pode estar vazia!")
-	@Column(name = "placa", length = 255)
+	@Size(min = 7, max = 7, message = "Preencha de forma completa a placa do automóvel (ela possui 7 caracteres).")
+	@Column(name = "placa", length = 7)
 	private String placa;
 	
 	@NotBlank(message = "O número do Renavam não pode estar vazio!")
-	@Column(name = "renavam", length = 255)
+	@Size(min = 9, max = 11, message = "Insira um número de Renavam válido.")
+	@Column(name = "renavam", length = 11)
 	private String renavam;
 	
 	@NotNull(message = "O valor da apólice não pode ser nulo!")
@@ -60,7 +63,15 @@ public class Apolice {
 	@Column(name = "statusApolice")
 	private Integer statusApolice;
 	
+	@NotBlank(message = "O atributo de marca e modelo precisa ser preenchido!")
+	@Column(name = "marcaModelo", length = 255)
 	private String marcaModelo;
+	
+	/* para quando estiver junto a classe cliente
+	@ManyToOne
+	@JsonIgnoreProperties("apolices")
+	private Cliente cliente;
+	*/
 
 	public Long getId() {
 		return id;
@@ -150,7 +161,6 @@ public class Apolice {
 		this.statusApolice = statusApolice;
 	}
 	
-	
 	public String getMarcaModelo() {
 		return marcaModelo;
 	}
@@ -158,6 +168,16 @@ public class Apolice {
 	public void setMarcaModelo(String marcaModelo) {
 		this.marcaModelo = marcaModelo;
 	}
+	
+	/* para quando estiver junta a classe Cliente
+	public String getCliente() {
+		return cliente;
+	}
+
+	public void setCliente(Cliente cliente) {
+		this.cliente = cliente;
+	}
+	*/
 
 	@PrePersist
 	public void gerarNumeroApolice() {
