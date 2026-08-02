@@ -43,12 +43,11 @@ public class UsuarioController {
     public ResponseEntity<Optional<Usuario>> getByTipo(@PathVariable String email) {
         return ResponseEntity.ok(usuarioRepository.findByEmail(email));
     }
-
     @PostMapping("/cadastrar")
-    public ResponseEntity<Usuario> post(@Valid @RequestBody Usuario usuarios) {
-        usuarios.setId(null);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(usuarioRepository.save(usuarios));
+    public ResponseEntity<Usuario> post(@Valid @RequestBody Usuario usuario) {
+        return usuarioService.cadastrarUsuario(usuario)
+                .map(resposta -> ResponseEntity.status(HttpStatus.CREATED).body(resposta))
+                .orElse(ResponseEntity.status(HttpStatus.BAD_REQUEST).build());
     }
 
     @PutMapping
