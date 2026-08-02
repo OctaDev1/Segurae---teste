@@ -1,7 +1,9 @@
 package com.generation.segurae.controller;
 
 import com.generation.segurae.model.Usuario;
+import com.generation.segurae.model.UsuarioLogin;
 import com.generation.segurae.repository.UsuarioRepository;
+import com.generation.segurae.service.UsuarioService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,6 +21,10 @@ public class UsuarioController {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
+    @Autowired
+    private UsuarioService usuarioService;
+
+
     @GetMapping
     public ResponseEntity<List<Usuario>> getAll() {
         return ResponseEntity.ok(usuarioRepository.findAll());
@@ -33,12 +39,12 @@ public class UsuarioController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/nome/{nome}")
-    public ResponseEntity<List<Usuario>> getByTipo(@PathVariable String nome) {
-        return ResponseEntity.ok(usuarioRepository.findByNomeContainingIgnoreCase(nome));
+    @GetMapping("/email/{email}")
+    public ResponseEntity<Optional<Usuario>> getByTipo(@PathVariable String email) {
+        return ResponseEntity.ok(usuarioRepository.findByEmail(email));
     }
 
-    @PostMapping
+    @PostMapping("/cadastrar")
     public ResponseEntity<Usuario> post(@Valid @RequestBody Usuario usuarios) {
         usuarios.setId(null);
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -52,6 +58,14 @@ public class UsuarioController {
                         .body(usuarioRepository.save(usuarios)))
                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
+
+    @PostMapping("/logar")
+    public ResponseEntity<UsuarioLogin> autenticar(@Valid @RequestBody Optional<UsuarioLogin> usuarioLogin) {
+        return usuarioService.autenticarUsuario(usuarioLogin)
+                .map(resposta -> ResponseEntity.status(HttpStatus.OK).body(resposta))
+                .orElse(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
+    }
+
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{id}")

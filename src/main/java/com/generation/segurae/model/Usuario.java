@@ -9,9 +9,11 @@ import jakarta.validation.constraints.Size;
 @Table(name = "tb_usuario")
 public class Usuario {
 
-    //@OneToOne
-    //@JoinColumn(name = "cliente_id", nullable = false, unique = true)
-    //private Cliente cliente;
+
+
+    @OneToOne
+    @JoinColumn(name = "cliente_id", unique = true)
+    private Cliente cliente;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -73,5 +75,13 @@ public class Usuario {
 
     public void setFotoUrl(String fotoUrl) {
         this.fotoUrl = fotoUrl;
+    }
+
+    public Cliente getCliente() {
+        return cliente;
+    }
+
+    public void setCliente(Cliente cliente) {
+        this.cliente = cliente;
     }
 }
