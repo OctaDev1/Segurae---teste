@@ -10,6 +10,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -29,9 +31,10 @@ public class Apolice {
 	private String bemSegurado;
 	
 	@NotNull(message = "O ano do modelo não pode ser nulo!")
-	@Size(min = 4, max = 4, message = "Insira um ano válido.")
-	@Column(name = "anoModelo", length = 4)
-	private Integer anoModelo; 
+	@Min(value = 1950, message = "O ano do carro não pode ser menor que 1950.") 
+	@Max(value = 2030, message = "O ano do carro é inválido.")
+	@Column(name = "anoModelo") 
+	private Integer anoModelo;
 	
 	@NotBlank(message = "A placa não pode estar vazia!")
 	@Size(min = 7, max = 7, message = "Preencha de forma completa a placa do automóvel (ela possui 7 caracteres).")
