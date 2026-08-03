@@ -84,7 +84,17 @@ public class Cliente {
 	}
 
 	public void setCpfCnpj(String cpfCnpj) {
-		this.cpfCnpj = cpfCnpj;
+		if (cpfCnpj != null) {
+			String numero = cpfCnpj.replaceAll("\\D", "");
+			
+			if (numero.length() != 11 && numero.length() != 14) {
+				throw new IllegalArgumentException("O CPF deve ter 11 dígitos ou o CNPJ deve ter 14 dígitos");
+			}
+			
+			this.cpfCnpj = numero;
+		} else {
+			this.cpfCnpj = null;
+		}
 	}
 
 	public LocalDate getDataNascimento() {
