@@ -1,9 +1,19 @@
 package com.generation.segurae.model;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.persistence.*;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -12,22 +22,6 @@ import jakarta.validation.constraints.Size;
 @Entity
 @Table(name = "tb_clientes")
 public class Cliente {
-
-	@OneToOne(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true)
-	@JsonIgnoreProperties("cliente")
-	private Usuario usuario;
-
-	@ManyToOne
-	@JoinColumn(name = "cliente_id")
-	private Cliente cliente_id;
-
-	public Cliente getCliente_id() {
-		return cliente_id;
-	}
-
-	public void setCliente_id(Cliente cliente_id) {
-		this.cliente_id = cliente_id;
-	}
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -53,13 +47,13 @@ public class Cliente {
 	@Column(name = "dataNascimento", nullable = false)
 	private LocalDate dataNascimento;
 
-	public Usuario getUsuario() {
-		return usuario;
-	}
+	@OneToOne(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true)
+	@JsonIgnoreProperties("cliente")
+	private Usuario usuario;
 
-	public void setUsuario(Usuario usuario) {
-		this.usuario = usuario;
-	}
+	@OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL)
+	@JsonIgnoreProperties("cliente")
+	private List<Apolice> apolices;
 
 	public Long getId() {
 		return id;
@@ -99,5 +93,21 @@ public class Cliente {
 
 	public void setDataNascimento(LocalDate dataNascimento) {
 		this.dataNascimento = dataNascimento;
+	}
+
+	public Usuario getUsuario() {
+		return usuario;
+	}
+
+	public void setUsuario(Usuario usuario) {
+		this.usuario = usuario;
+	}
+
+	public List<Apolice> getApolices() {
+		return apolices;
+	}
+
+	public void setApolices(List<Apolice> apolices) {
+		this.apolices = apolices;
 	}
 }

@@ -20,6 +20,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.generation.segurae.model.Apolice;
 import com.generation.segurae.repository.ApoliceRepository;
+import com.generation.segurae.repository.ClienteRepository;
 
 import jakarta.validation.Valid;
 
@@ -31,75 +32,59 @@ public class ApoliceController {
 	@Autowired
 	private ApoliceRepository apoliceRepository;
 	
-	/* para quando tiver junto da classe Cliente
 	@Autowired
 	private ClienteRepository clienteRepository;
-	*/
 	
 	@GetMapping
-	public ResponseEntity<List<Apolice>> getAll(){
+	public ResponseEntity<List<Apolice>> getAll() {
 		return ResponseEntity.ok(apoliceRepository.findAll());
 	}
 	
 	@GetMapping("/{id}")
-	public ResponseEntity<Optional<Apolice>> getById(@PathVariable Long id){
-		return ResponseEntity.ok(apoliceRepository.findById(id));
+	public ResponseEntity<Apolice> getById(@PathVariable Long id) {
+	    Optional<Apolice> apolice = apoliceRepository.findById(id);
+	    
+	    if (apolice.isEmpty()) {
+	        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Esta apólice não existe ou não está cadastrada.");
+	    }
+	    
+	    return ResponseEntity.ok(apolice.get());
 	}
 	
 	@GetMapping("/placa/{placa}")
-	public ResponseEntity<List<Apolice>> getByPlaca(@PathVariable String placa){
+	public ResponseEntity<List<Apolice>> getByPlaca(@PathVariable String placa) {
 		return ResponseEntity.ok(apoliceRepository.findAllByPlacaContainingIgnoreCase(placa));
 	}
 	
 	@GetMapping("/tipoCobertura/{tipoCobertura}")
-	public ResponseEntity<List<Apolice>> getByTipoCobertura(@PathVariable String tipoCobertura){
+	public ResponseEntity<List<Apolice>> getByTipoCobertura(@PathVariable String tipoCobertura) {
 		return ResponseEntity.ok(apoliceRepository.findAllByTipoCoberturaContainingIgnoreCase(tipoCobertura));
 	}
 	
-	/* post para quando tiver a classe Cliente junto
 	@PostMapping
-	public ResponseEntity<Apolice> post(@Valid @RequestBody Apolice apolice){
-		if(apoliceRepository.existsById(apolice.getId())) {
-			if(clienteRepository.existsById(apolice.cliente.getId())) {
-				return ResponseEntity.status(HttpStatus.CREATED).body(apoliceRepository.save(apolice));
-			}
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Este cliente não existe ou não está cadastrado.");
-		}
-	}
-	*/
-	
-	@PostMapping
-	public ResponseEntity<Apolice> post(@Valid @RequestBody Apolice apolice){
-			return ResponseEntity.status(HttpStatus.CREATED).body(apoliceRepository.save(apolice));
-	}
-	
-	/* put para quando estiver junto da classe cliente
-	@PutMapping
-	public ResponseEntity<Apolice> put(@Valid @RequestBody Apolice apolice){
-		if(apoliceRepository.existsById(apolice.getId())) {
-			if(clienteRepository.existsById(apolice.getCliente().getId())) {
-				return ResponseEntity.ok(apoliceRepository.save(apolice));
-			}
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Este cliente não está cadastrado (não existe no banco de dados).", null);
-		}
-		return ResponseEntity.notFound().build();
-	} 
-	 */
-	
-	@PutMapping
-	public ResponseEntity<Apolice> put(@Valid @RequestBody Apolice apolice){
-		if(apoliceRepository.existsById(apolice.getId())) {
+	public ResponseEntity<Apolice> post(@Valid @RequestBody Apolice apolice) {
+		if (apolice.getCliente() != null && clienteRepository.existsById(apolice.getCliente().getId())) {
 			return ResponseEntity.status(HttpStatus.CREATED).body(apoliceRepository.save(apolice));
 		}
-		throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Esta apólice não está cadastrada (não existe no banco de dados).", null);
+		throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Este cliente não existe ou não está cadastrado.");
+	}
+	
+	@PutMapping
+	public ResponseEntity<Apolice> put(@Valid @RequestBody Apolice apolice) {
+		if (apolice.getId() == null || !apoliceRepository.existsById(apolice.getId())) {
+			return ResponseEntity.notFound().build();
+		}
+		
+		if (apolice.getCliente() != null && clienteRepository.existsById(apolice.getCliente().getId())) {
+			return ResponseEntity.ok(apoliceRepository.save(apolice));
+		}
+		throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Este cliente não está cadastrado (não existe no banco de dados).");
 	}
 	
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	@DeleteMapping("/{id}")
 	public void delete(@PathVariable Long id) {
-		Optional<Apolice> apolice = apoliceRepository.findById(id);
-		
-		if(apolice.isEmpty()) {
+		if (apoliceRepository.findById(id).isEmpty()) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
 		}
 		apoliceRepository.deleteById(id);

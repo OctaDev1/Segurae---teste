@@ -45,12 +45,12 @@ public class ClienteController {
 		return ResponseEntity.ok(clienteRepository.findAllByNomeCompletoContainingIgnoreCase(nomeCompleto));
 	}
 
-	@PostMapping
+	@PostMapping("/cadastrar")
 	public ResponseEntity<Cliente> post(@Valid @RequestBody Cliente cliente) {
 		return ResponseEntity.status(HttpStatus.CREATED).body(clienteRepository.save(cliente));
 	}
 
-	@PutMapping
+	@PutMapping("/atualizar")
 	public ResponseEntity<Cliente> put(@Valid @RequestBody Cliente cliente) {
 		if (clienteRepository.existsById(cliente.getId())) {
 			return ResponseEntity.ok(clienteRepository.save(cliente));

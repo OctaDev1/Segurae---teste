@@ -3,7 +3,18 @@ package com.generation.segurae.model;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -24,8 +35,9 @@ public class Apolice {
 	private String bemSegurado;
 	
 	@NotNull(message = "O ano do modelo não pode ser nulo!")
-	@Size(min = 4, max = 4, message = "Insira um ano válido.")
-	@Column(name = "anoModelo", length = 4)
+	@Min(value = 1900, message = "Insira um ano válido.")
+	@Max(value = 2100, message = "Insira um ano válido.")
+	@Column(name = "anoModelo")
 	private Integer anoModelo; 
 	
 	@NotBlank(message = "A placa não pode estar vazia!")
@@ -61,12 +73,10 @@ public class Apolice {
 	@NotBlank(message = "O atributo de marca e modelo precisa ser preenchido!")
 	@Column(name = "marcaModelo", length = 255)
 	private String marcaModelo;
-	
-	/* para quando estiver junto a classe cliente
+
 	@ManyToOne
 	@JsonIgnoreProperties("apolices")
 	private Cliente cliente;
-	*/
 
 	public Long getId() {
 		return id;
@@ -164,15 +174,13 @@ public class Apolice {
 		this.marcaModelo = marcaModelo;
 	}
 	
-	/* para quando estiver junta a classe Cliente
-	public String getCliente() {
+	public Cliente getCliente() {
 		return cliente;
 	}
 
 	public void setCliente(Cliente cliente) {
 		this.cliente = cliente;
 	}
-	*/
 
 	@PrePersist
 	public void gerarNumeroApolice() {
@@ -182,6 +190,4 @@ public class Apolice {
 	        this.numeroApolice = "SEG-" + anoAtual + "-" + codigo;
 	    }
 	}
-	
-	
 }
