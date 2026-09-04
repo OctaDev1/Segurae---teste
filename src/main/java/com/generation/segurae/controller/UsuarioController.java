@@ -34,22 +34,12 @@ public class UsuarioController {
 	@Autowired
 	private UsuarioService usuarioService;
 
-	@GetMapping
-	public ResponseEntity<List<Usuario>> getAll() {
-		return ResponseEntity.ok(usuarioRepository.findAll());
-	}
-
-	@GetMapping("/{id}")
-	public ResponseEntity<Usuario> getById(@PathVariable Long id) {
-		return usuarioRepository.findById(id)
-
-				.map(ResponseEntity::ok)
-				.orElse(ResponseEntity.notFound().build());
-	}
-
-	@GetMapping("/email/{email}")
-	public ResponseEntity<Optional<Usuario>> getByTipo(@PathVariable String usuario) {
-		return ResponseEntity.ok(usuarioRepository.findByUsuario(usuario));
+	// 1. ROTAS ESPECÍFICAS PRIMEIRO (Evita conflito com o /{id})
+	@PostMapping("/logar")
+	public ResponseEntity<UsuarioLogin> autenticar(@Valid @RequestBody Optional<UsuarioLogin> usuarioLogin) {
+		return usuarioService.autenticarUsuario(usuarioLogin)
+				.map(resposta -> ResponseEntity.status(HttpStatus.OK).body(resposta))
+				.orElse(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
 	}
 
 	@PostMapping("/cadastrar")
@@ -59,6 +49,25 @@ public class UsuarioController {
 				.orElse(ResponseEntity.status(HttpStatus.BAD_REQUEST).build());
 	}
 
+	// 2. ROTAS DE LISTAGEM E BUSCA GERAL
+	@GetMapping
+	public ResponseEntity<List<Usuario>> getAll() {
+		return ResponseEntity.ok(usuarioRepository.findAll());
+	}
+
+	@GetMapping("/email/{email}")
+	public ResponseEntity<Optional<Usuario>> getByEmail(@PathVariable String email) {
+		return ResponseEntity.ok(usuarioRepository.findByUsuario(email));
+	}
+
+	// 3. ROTAS DINÂMICAS COM ID POR ÚLTIMO
+	@GetMapping("/{id}")
+	public ResponseEntity<Usuario> getById(@PathVariable Long id) {
+		return usuarioRepository.findById(id)
+				.map(ResponseEntity::ok)
+				.orElse(ResponseEntity.notFound().build());
+	}
+
 	@PutMapping("/atualizar")
 	public ResponseEntity<Usuario> put(@Valid @RequestBody Usuario usuarios) {
 		return usuarioRepository.findById(usuarios.getId())
@@ -66,18 +75,11 @@ public class UsuarioController {
 				.orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
 	}
 
-	@PostMapping("/logar")
-	public ResponseEntity<UsuarioLogin> autenticar(@Valid @RequestBody Optional<UsuarioLogin> usuarioLogin) {
-		return usuarioService.autenticarUsuario(usuarioLogin)
-				.map(resposta -> ResponseEntity.status(HttpStatus.OK).body(resposta))
-				.orElse(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
-	}
-
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	@DeleteMapping("/{id}")
 	public void delete(@PathVariable Long id) {
-		Optional<Usuario> tema = usuarioRepository.findById(id);
-		if (tema.isEmpty())
+		Optional<Usuario> usuario = usuarioRepository.findById(id);
+		if (usuario.isEmpty())
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
 		usuarioRepository.deleteById(id);
 	}
