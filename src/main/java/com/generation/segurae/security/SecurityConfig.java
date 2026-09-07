@@ -51,16 +51,24 @@ public class SecurityConfig {
         return http
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .csrf(csrf -> csrf.disable())
-                // CORRIGIDO: Agora o CORS aponta para as regras definidas abaixo
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
                         .requestMatchers(HttpMethod.OPTIONS).permitAll()
+
+                        // Rotas de Clientes (Permite corretor cadastrar e gerenciar clientes)
+                        .requestMatchers(HttpMethod.POST, "/clientes/**").hasRole("CORRETOR")
+                        .requestMatchers(HttpMethod.PUT, "/clientes/**").hasRole("CORRETOR")
+                        .requestMatchers(HttpMethod.DELETE, "/clientes/**").hasRole("CORRETOR")
+                        .requestMatchers(HttpMethod.GET, "/clientes/**").hasAnyRole("CLIENTE", "CORRETOR")
+
+                        // Rotas de Apólices (Permite corretor gerenciar e clientes visualizarem)
                         .requestMatchers(HttpMethod.POST, "/apolices/**").hasRole("CORRETOR")
                         .requestMatchers(HttpMethod.PUT, "/apolices/**").hasRole("CORRETOR")
                         .requestMatchers(HttpMethod.DELETE, "/apolices/**").hasRole("CORRETOR")
                         .requestMatchers(HttpMethod.GET, "/apolices/**").hasAnyRole("CLIENTE", "CORRETOR")
+
                         .anyRequest().authenticated()
                 )
 
@@ -74,14 +82,13 @@ public class SecurityConfig {
                 .build();
     }
 
-    // ADICIONADO: Configuração de permissões de origem para o Front-end
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("*")); // Libera todas as origens (ideal para testes/desenvolvimento)
+        configuration.setAllowedOrigins(List.of("*"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowCredentials(false); // Defina como true se for usar cookies/sessões com credenciais (com "*" precisa ser false)
+        configuration.setAllowCredentials(false);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
