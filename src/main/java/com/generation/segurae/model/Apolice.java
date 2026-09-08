@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -27,6 +28,8 @@ public class Apolice {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
+	// Impede que o Jackson tente desserializar/exigir este campo na entrada (POST/PUT)
+	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
 	@Column(name = "numeroApolice", length = 255, unique = true, nullable = false, updatable = false)
 	private String numeroApolice;
 
@@ -78,9 +81,14 @@ public class Apolice {
 	@JsonIgnoreProperties("apolices")
 	private Cliente cliente;
 
+	// CORRIGIDO: mudado de "apolice" para "apolices" e ignora senha/propriedades cíclicas do Usuario
 	@ManyToOne
-	@JsonIgnoreProperties("apolice")
+	@JsonIgnoreProperties({"apolices", "senha"})
 	private Usuario usuario;
+
+	// Construtor público padrão sem argumentos (OBRIGATÓRIO PARA O JACKSON)
+	public Apolice() {
+	}
 
 	public Long getId() {
 		return id;
