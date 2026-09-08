@@ -19,6 +19,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
 @Table(name = "tb_apolice")
@@ -62,10 +63,12 @@ public class Apolice {
 	private String tipoCobertura;
 
 	@NotNull(message = "A data de início não pode ser nula!")
+	@JsonFormat(pattern = "yyyy-MM-dd")
 	@Column(name = "dataInicio")
 	private LocalDate dataInicio;
 
 	@NotNull(message = "A data de término não pode ser nula!")
+	@JsonFormat(pattern = "yyyy-MM-dd")
 	@Column(name = "dataTermino")
 	private LocalDate dataTermino;
 
